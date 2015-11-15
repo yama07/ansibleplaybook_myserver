@@ -1,0 +1,5 @@
+[webserver]
+192.168.100.108
+
+[webserver:vars]
+asserts_dir=/opt/assets
