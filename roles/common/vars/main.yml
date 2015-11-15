@@ -1,0 +1,6 @@
+---
+assets_dir: /opt/assets
+
+common_tools:
+  - { name: gcc, state: latest }
+  - { name: gcc-c++, state: latest }

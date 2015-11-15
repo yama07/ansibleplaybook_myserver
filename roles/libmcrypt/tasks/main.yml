@@ -1,0 +1,18 @@
+---
+# libmcryptインストール用資産を配置するディレクトリが存在している
+- name: Ensure assets dir
+  file: path={{ libmcrypt_assets_dir }} state=directory
+
+# libmcrypt rpmが存在している
+- name: Ensure rpms exist
+  copy: src={{ item }} dest={{ libmcrypt_assets_dir }}
+  with_items:
+    - "{{ libmcrypt_rpm }}"
+    - "{{ libmcyrpt_devel_rpm }}"
+
+# libmcryptがインストール済みである
+- name: Ensure mcrypt is installed
+  yum: name={{ item }} state=present disable_gpg_check=true
+  with_items: 
+    - "{{ libmcrypt_assets_dir }}/{{ libmcrypt_rpm }}"
+    - "{{ libmcrypt_assets_dir }}/{{ libmcyrpt_devel_rpm }}"

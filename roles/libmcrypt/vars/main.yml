@@ -1,0 +1,4 @@
+---
+libmcrypt_assets_dir: "{{ assets_dir }}/libmcrypt"
+libmcrypt_rpm: libmcrypt-2.5.7-5.el5.x86_64.rpm
+libmcyrpt_devel_rpm: libmcrypt-devel-2.5.7-5.el5.x86_64.rpm

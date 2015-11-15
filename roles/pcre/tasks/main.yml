@@ -1,0 +1,15 @@
+---
+# PCREビルド用資産を配置するディレクトリが存在している
+- name: Ensure assets dir
+  file: path={{ pcre_assets_dir }} state=directory
+
+# PCREのソースファイルが存在している
+- name: Ensure PCRE src exists
+  unarchive: src={{ pcre_src_archive }} dest={{ pcre_assets_dir }}
+    creates={{ pcre_assets_dir }}/{{ pcre_src }}
+
+# OpenSSLがインストール済みである
+- name: Ensure PCRE is installed
+  shell: ./configure --prefix={{ pcre_prefix }} && make && make install
+    chdir={{ pcre_assets_dir }}/{{ pcre_src }}
+    creates={{ pcre_prefix }}

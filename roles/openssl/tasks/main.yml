@@ -1,0 +1,20 @@
+---
+# OpenSSLビルド用資産を配置するディレクトリが存在している
+- name: Ensure assets dir
+  file: path={{ openssl_assets_dir }} state=directory
+
+# OpenSSLのソースファイルが存在している
+- name: Ensure OpenSSL src exists
+  unarchive: src={{ openssl_src_archive }} dest={{ openssl_assets_dir }}
+    creates={{ openssl_assets_dir }}/{{ openssl_src }}
+
+# OpenSSLがインストール済みである
+- name: Ensure Openssl is installed
+  shell: ./config --prefix={{ openssl_prefix }} shared && make && make install
+    chdir={{ openssl_assets_dir }}/{{ openssl_src }}
+    creates={{ openssl_prefix }}
+
+# 共有ライブラリがロード済みである
+- name: Ensure .so are loadedloa 
+  shell: echo {{ openssl_prefix }}/lib > /etc/ld.so.conf.d/openssl.conf; ldconfig
+    creates=/etc/ld.so.conf.d/openssl.conf

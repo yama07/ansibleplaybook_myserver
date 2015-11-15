@@ -1,0 +1,6 @@
+---
+openssl_assets_dir: "{{ assets_dir }}/openssl"
+openssl_src_archive: openssl-1.0.1p.tar.gz
+openssl_src: '{{ openssl_src_archive | regex_replace("\.tar\.gz$", "") }}'
+
+openssl_prefix: /usr/local/openssl

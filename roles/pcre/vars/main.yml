@@ -1,0 +1,6 @@
+---
+pcre_assets_dir: "{{ assets_dir }}/pcre"
+pcre_src_archive: pcre-8.37.tar.gz
+pcre_src: '{{ pcre_src_archive | regex_replace("\.tar\.gz$", "") }}'
+
+pcre_prefix: /usr/local/pcre

@@ -1,0 +1,32 @@
+---
+# Apacheビルド用資産を配置するディレクトリが存在している
+- name: Ensure assets dir
+  file: path={{ apache_assets_dir }} state=directory
+
+# Apacheのソースファイルが存在している
+- name: Ensure Apache src exists
+  unarchive: src={{ apache_src_archive }} dest={{ apache_assets_dir }}
+    creates={{ apache_assets_dir }}/{{ apache_src }}
+- name: Ensure APR src exists
+  unarchive: src={{ apache_apr_src_archive }} dest={{ apache_assets_dir }}
+    creates={{ apache_assets_dir }}/{{ apache_apr_src }}
+- name: Ensure APR-Util src exists
+  unarchive: src={{ apache_apr_util_src_archive }} dest={{ apache_assets_dir }}
+    creates={{ apache_assets_dir }}/{{ apache_apr_util_src }}
+
+# Apacheがインストール済みである
+- name: Ensure APR src is set
+  shell: cp -r {{ apache_apr_src }} {{ apache_src }}/srclib/apr
+    chdir={{ apache_assets_dir }}
+    creates={{ apache_assets_dir }}/{{ apache_src }}/srclib/apr
+- name: Ensure APR-Util is set
+  shell: cp -r {{ apache_apr_util_src }} {{ apache_src }}/srclib/apr-util
+    chdir={{ apache_assets_dir }}
+    creates={{ apache_assets_dir }}/{{ apache_src }}/srclib/apr-util
+- name: Ensure Apache is installed
+  shell: >
+    ./configure --prefix={{ apache_prefix }} --enable-modules=ssl
+      --with-ssl={{ openssl_prefix }} --with-pcre={{ pcre_prefix }} &&
+    make && make install
+    chdir={{ apache_assets_dir }}/{{ apache_src }}
+    creates={{ apache_prefix }}

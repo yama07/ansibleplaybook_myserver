@@ -1,0 +1,5 @@
+---
+# Apacheのインストール
+- include: install.yml
+# Apacheの設定
+- include: setting.yml

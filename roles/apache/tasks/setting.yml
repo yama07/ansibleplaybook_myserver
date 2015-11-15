@@ -1,0 +1,64 @@
+---
+# 自己証明書作成済み
+- name: Ensure CAcert dir exists
+  file: path={{ apache_cacert_prefix }} state=directory
+- name: Ensure key exists
+  shell: >
+    "{{ openssl_prefix }}"/bin/openssl genrsa 2048 > {{ apache_cacert_key }}
+  args:
+    creates: "{{ apache_cacert_key }}"
+- name: Ensure csr exists
+  shell: >
+    "{{ openssl_prefix }}"/bin/openssl req -new -key {{ apache_cacert_key}} -out {{ apache_cacert_csr }} -subj '/C={{ apache_cacert_info.countoryName }}/ST={{ apache_cacert_info.stateOrProvinceName }}/L={{ apache_cacert_info.localityName }}/O={{ apache_cacert_info.organizationName }}/OU={{ apache_cacert_info.organizationalUnitName }}/CN={{ apache_cacert_info.commonName }}'
+  args:
+    creates: "{{ apache_cacert_csr }}"
+- name: Ensure crt exists
+  shell: >
+    "{{ openssl_prefix }}"/bin/openssl x509 -in {{ apache_cacert_csr }} -days 365 -req -signkey {{ apache_cacert_key }} > {{ apache_cacert_crt }}
+  args:
+    creates: "{{ apache_cacert_crt }}"
+
+# モジュール追加済み
+- name: Check apache modules proxy_module
+  shell: >
+    "{{ apache_prefix }}"/bin/apachectl -M | grep proxy_module
+  register: is_proxy_moduele_installed
+  ignore_errors: true
+  changed_when: false
+- name: Ensure proxy_module is installed
+  shell: >
+    "{{ apache_prefix }}"/bin/apxs -i -a -c {{ apache_assets_dir }}/{{ apache_src }}/modules/proxy/mod_proxy.c {{ apache_assets_dir }}/{{ apache_src }}/modules/proxy/proxy_util.c
+  when: is_proxy_moduele_installed|failed
+
+- name: Check apache modules proxy_ajp_module
+  shell: >
+    "{{ apache_prefix }}"/bin/apachectl -M | grep proxy_ajp_module
+  register: is_proxy_ajp_moduele_installed
+  ignore_errors: true
+  changed_when: false
+- name: Ensure proxy_ajp_modules is installed
+  shell: >
+    "{{ apache_prefix }}"/bin/apxs -i -a -c {{ apache_assets_dir }}/{{ apache_src }}/modules/proxy/mod_proxy_ajp.c {{ apache_assets_dir }}/{{ apache_src }}/modules/proxy/ajp_*.c
+  when: is_proxy_moduele_installed|failed
+
+# 設定済み
+- name: Ensure conf file is set
+  template: src=httpd.conf.j2 dest={{ apache_prefix }}/conf/httpd.conf backup=yes
+  notify: Restart httpd
+- name: Ensure conf file is set
+  template: src=httpd-ssl.conf.j2 dest={{ apache_prefix }}/conf/extra/httpd-ssl.conf backup=yes
+  notify: Restart httpd
+
+# 自動起動設定済み＆実行中
+- name: Ensure httpd.init is set
+  template: src=httpd.init.j2 dest=/etc/init.d/httpd mode=755
+- name: Check httpd.init is added
+  shell: chkconfig --list | grep httpd
+  register: is_httpd_init_added
+  ignore_errors: true
+  changed_when: false
+- name: Ensure httpd.init is added
+  shell: chkconfig --add httpd
+  when: is_httpd_init_added|failed
+- name: Ensure service is enable and runnig
+  service: name=httpd enabled=yes state=started 

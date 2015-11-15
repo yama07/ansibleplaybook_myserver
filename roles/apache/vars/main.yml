@@ -1,0 +1,33 @@
+---
+apache_assets_dir: "{{ assets_dir }}/apache"
+
+apache_src_archive: httpd-2.4.16.tar.gz
+apache_src: '{{ apache_src_archive | regex_replace("\.tar\.gz$", "") }}'
+apache_apr_src_archive: apr-1.5.2.tar.gz
+apache_apr_src: '{{ apache_apr_src_archive | regex_replace("\.tar\.gz$", "") }}'
+apache_apr_util_src_archive: apr-util-1.5.4.tar.gz
+apache_apr_util_src: '{{ apache_apr_util_src_archive | regex_replace("\.tar\.gz$", "") }}'
+
+apache_prefix: /usr/local/apache2
+
+apache_invoking_user: apache
+apache_invoking_group: apache
+
+apache_servername: "{{ ansible_fqdn }}"
+apache_http_port: 80
+apache_https_port: 443
+apache_document_root: "{{ apache_prefix }}/htdocs"
+
+apache_cacert_prefix: /etc/httpd/conf
+apache_cacert_key: "{{ apache_cacert_prefix }}/server.key"
+apache_cacert_csr: "{{ apache_cacert_prefix }}/server.csr"
+apache_cacert_crt: "{{ apache_cacert_prefix }}/server.crt"
+apache_cacert_info: {
+  countoryName: "JP",
+  stateOrProvinceName: "Tokyo",
+  localityName: "",
+  organizationName: "Yama",
+  organizationalUnitName: "",
+  commonName: "{{ apache_servername }}"
+}
+
